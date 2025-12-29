@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Java Expense Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    // Sets the date input to today's date on page load
+    document.querySelector('input[type="date"]').valueAsDate = new Date();
+    </script>
+</head>
+<body class="bg-gray-100 p-10">
+    <div class="flex justify-between items-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-800">Financial Dashboard</h1>
+          <a href="/analysis" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition flex items-center gap-2">
+             <span>^^</span> View Analytics
+          </a>
+    </div>
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg mb-6">
+            <h2 class="text-sm uppercase font-bold opacity-80">Total Spending</h2>
+            <p class="text-4xl font-black" th:text="${'₹' + #numbers.formatDecimal(total, 1, 2, 'POINT')}">₹0.00</p>
+        </div>
+
+
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+    <h3 class="text-xl font-bold mb-4 text-gray-800">Set Monthly Budget</h3>
+    <form action="/set-budget" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        
+        <div class="flex flex-col">
+            <label for="monthYear" class="text-xs text-gray-500 mb-1 ml-1 font-semibold uppercase">Select Month (YYYY-MM)</label>
+            <input type="month" 
+                   id="monthYear"
+                   name="monthYear" 
+                   title="MONTH"
+                   class="border p-2 rounded w-full bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" 
+                   required>
+        </div>
+
+        <div class="flex flex-col">
+            <label for="amount" class="text-xs text-gray-500 mb-1 ml-1 font-semibold uppercase">Monthly Budget</label>
+            <input type="number" 
+                   id="amount"
+                   name="amount" 
+                   placeholder="Enter amount" 
+                   class="border p-2 rounded w-full bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" 
+                   required>
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition h-[42px]">
+            Save Budget
+        </button>
+    </form>
+</div>
+
+<!-- <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 mt-8">
+    <table class="w-full text-left">
+        <thead class="bg-gray-50 border-b">
+            <tr class="text-gray-400 text-sm uppercase">
+                <th class="p-4">Month</th>
+                <th class="p-4">Budget</th>
+                <th class="p-4">Spent</th>
+                <th class="p-4 text-right">Remaining</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="entry : ${monthlyTotals}" class="border-t border-gray-50">
+                <td class="p-4 font-medium" th:text="${entry.key}">December 2025</td>
+                
+                <td class="p-4 text-gray-600">
+                  <span th:with="b=${monthlyBudgets != null && monthlyBudgets.containsKey(entry.key) ? monthlyBudgets.get(entry.key) : 0.0}"
+                       th:text="${'₹' + #numbers.formatDecimal(b, 1, 2)}">
+                      ₹0.00
+                 </span>
+                </td>
+                
+                <td class="p-4 font-semibold text-blue-600" th:text="${'₹' + #numbers.formatDecimal(entry.value, 1, 2)}">₹0.00</td>
+                
+                <td class="p-4 text-right font-bold">
+                     <span th:with="b=${monthlyBudgets != null && monthlyBudgets.containsKey(entry.key) ? monthlyBudgets.get(entry.key) : 0.0}, 
+                                     remaining=${b - entry.value}"
+                           th:text="${'₹' + #numbers.formatDecimal(remaining, 1, 2)}"
+                           th:class="${remaining >= 0 ? 'text-green-600' : 'text-red-600'}">
+                     </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div> -->
+
+        <form action="/add" method="post" class="bg-white p-6 rounded-xl shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+           <input type="text" name="category" placeholder="Category" class="border p-2 rounded w-full" required>
+           <input type="number" step="0.01" name="amount" placeholder="Amount" class="border p-2 rounded w-full" required>
+    
+           <input type="date" name="date" class="border p-2 rounded w-full" required>
+    
+           <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded font-bold hover:bg-green-600 transition">
+              Add Expense
+           </button>
+        </form>
+
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <table class="w-full">
+                <tr th:each="exp : ${expenses}" class="border-b hover:bg-gray-50 transition">
+                    <td class="p-4 font-bold text-gray-700" th:text="${exp.category}">Category</td>
+                    <td class="p-4 text-right font-medium" th:text="${'₹' + #numbers.formatDecimal(exp.amount, 1, 2, 'POINT')}">₹0.00</td>
+                    <td class="p-4 text-right">
+                      <form th:action="@{'/delete/' + ${exp.id}}" method="post" style="display:inline;">
+                         <button type="submit" class="text-red-500 hover:text-red-700 font-bold px-2">
+                Delete
+            </button>
+        </form>
+    </td>
+</tr>
+            </table>
+        </div>
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 mt-8">
+    <div class="p-4 bg-gray-50 border-b">
+        <h3 class="font-bold text-gray-700">Monthly Spending Summary</h3>
+    </div>
+    <table class="w-full text-left">
+        <thead>
+            <tr class="text-gray-400 text-sm uppercase">
+                <th class="p-4">Month</th>
+                <th class="p-4">Budget</th>
+                <th class="p-4">Spent</th>
+                <th class="p-4 text-right">Remaining</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="entry : ${monthlyTotals}" class="border-t border-gray-50 hover:bg-gray-50">
+                <td class="p-4 font-medium" th:text="${entry.key}">December 2025</td>
+                
+                <td class="p-4 text-gray-600" 
+                    th:with="b=${monthlyBudgets.get(entry.key) != null ? monthlyBudgets.get(entry.key) : 0}"
+                    th:text="${'₹' + #numbers.formatDecimal(b, 1, 2)}">₹0.00</td>
+                
+                <td class="p-4 font-semibold text-blue-600" 
+                    th:text="${'₹' + #numbers.formatDecimal(entry.value, 1, 2)}">₹0.00</td>
+                
+                <td class="p-4 text-right font-bold" 
+                    th:with="b=${monthlyBudgets.get(entry.key) != null ? monthlyBudgets.get(entry.key) : 0}, 
+                             rem=${b - entry.value}">
+                    <span th:text="${'₹' + #numbers.formatDecimal(rem, 1, 2)}"
+                          th:class="${rem >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ₹0.00
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+
+    </div>
+</body>
+</html>
